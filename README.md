@@ -13,7 +13,7 @@ There are 2 MT Systems
 
 This system was trained using Open-NMT with BPE as its tokenizer.\
 The code for tokenisation can be found [here](commands).\
-Number of merge operations is `30000`.\
+Number of merge operations is `30000`.
 
 ### English to Hindi Neural Machine Translation System
 ![En-Hi NMT](images/nmt/nmt-en-hi.png)

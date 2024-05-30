@@ -10,7 +10,7 @@ import codecs
 
 # set the title
 sl.set_page_config(page_title="Hi<->En MT System")
-sl.title("Bi-directional Hindi-English Machine Translation")
+sl.title("NMT-Based Bi-directional Hindi-English Machine Translation")
 
 
 print("getting BPE codes ...")

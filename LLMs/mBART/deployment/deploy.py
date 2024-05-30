@@ -8,7 +8,7 @@ from getModels import *
 
 # set the title
 sl.set_page_config(page_title="Hi<->En MT System")
-sl.title("Bi-directional Hindi-English Machine Translation")
+sl.title("Fine-Tuned Bi-directional Hindi-English Machine Translation")
 
 
 model_options = (

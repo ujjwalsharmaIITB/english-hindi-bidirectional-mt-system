@@ -38,4 +38,4 @@ To deploy the websites run
 `bash LLMs/mBART/deployment/deploy.sh`
 
 
-Note that models are translated using ctranslate2 and needs to be present before running the deployment scrpit
+Note that models are translated using ctranslate2 and needs to be present before running the deployment script

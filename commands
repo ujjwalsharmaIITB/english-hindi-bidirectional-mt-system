@@ -1,0 +1,61 @@
+cat ../Hindi\ GEC\ Data/train.src ../Hindi\ GEC\ Data/hiwiki.extracted.clean.src > train.full.src
+
+cat ../Hindi\ GEC\ Data/train.trg ../Hindi\ GEC\ Data/hiwiki.extracted.clean.trg > train.full.tgt
+
+subword-nmt learn-bpe -s 15000 < train.full.src > bpe/learn/src.bpe-codes
+
+subword-nmt learn-bpe -s 15000 < train.full.tgt > bpe/learn/tgt.bpe-codes
+
+subword-nmt apply-bpe -c bpe/learn/src.bpe-codes < ../Hindi\ GEC\ Data/train.src > bpe/train.src.bpe
+
+subword-nmt apply-bpe -c bpe/learn/tgt.bpe-codes < ../Hindi\ GEC\ Data/train.trg > bpe/train.tgt.bpe
+
+subword-nmt apply-bpe -c bpe/learn/src.bpe-codes < ../Hindi\ GEC\ Data/hiwiki.extracted.clean.src > bpe/test.src.bpe
+
+subword-nmt apply-bpe -c bpe/learn/tgt.bpe-codes < ../Hindi\ GEC\ Data/hiwiki.extracted.clean.trg > bpe/test.tgt.bpe
+
+## building vocab
+onmt_build_vocab -config gec_train_1.yaml -n_sample -1
+
+## Training 
+
+CUDA_VISIBLE_DEVICES=1 onmt_train -config gec_train_1.yaml -gpu_ranks 0
+
+CUDA_VISIBLE_DEVICES=1,2 onmt_train -config gec_train_1.yaml -world_size 2 -gpu_ranks 0 1
+
+
+## Inferece
+CUDA_VISIBLE_DEVICES=4 onmt_translate -gpu 0 -batch_size 128 -batch_type tokens -beam_size 10 -model checkpoints/opennmt/model_step_5000.pt  -src  bpe/test.src.bpe -output output/hindi_gec_5k.bpe
+
+cat output/hindi_gec_5k.bpe | sed -E 's/(@@ )|(@@ ?$)//g' > output/hindi_gec_5k.hindi
+
+## BLEU score
+
+### Orignal -  "score": 87.9 , 84.3 ( after removing @@ )
+
+sacrebleu bpe/test.src.bpe -i bpe/test.tgt.bpe
+
+sacrebleu output/hindi_gec.bpe -i bpe/test.tgt.bpe
+
+cat output/hindi_gec.bpe | sed -E 's/(@@ )|(@@ ?$)//g' > output/hindi_gec_900.filtered
+
+# inplace
+sed -E -i 's/(@@ )|(@@ ?$)//g' filename
+
+
+
+
+
+
+
+
+CUDA_VISIBLE_DEVICES=4 onmt_translate -gpu 0 -batch_size 128 \
+    -batch_type tokens -beam_size 5 -model checkpoints/opennmt/model_step_900.pt \
+    -src  bpe/test.src.bpe -output output/hindi_gec.bpe
+
+
+
+# deployment
+
+onmt_release_model --model model.pt --format ctranslate2 --output ct2_model
+
